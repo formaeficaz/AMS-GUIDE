@@ -7,17 +7,19 @@ type Theme = 'dark' | 'light';
 const ThemeContext = createContext<{
   theme: Theme;
   toggle: () => void;
-}>({ theme: 'dark', toggle: () => {} });
+}>({ theme: 'light', toggle: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('ams-guide-progress');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.theme) setTheme(parsed.theme);
+        if (parsed.theme === 'dark' || parsed.theme === 'light') {
+          setTheme(parsed.theme);
+        }
       }
     } catch {}
   }, []);

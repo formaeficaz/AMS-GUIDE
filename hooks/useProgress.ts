@@ -13,7 +13,7 @@ const STORAGE_KEY = 'ams-guide-progress';
 const defaultState: ProgressState = {
   completed: {},
   notes: {},
-  theme: 'dark',
+  theme: 'light',
 };
 
 function load(): ProgressState {
