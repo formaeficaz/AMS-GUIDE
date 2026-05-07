@@ -1,26 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-serif: Georgia, 'Times New Roman', serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Dark theme (default) ────────────────────────────── */
+:root {
+  color-scheme: dark;
+
+  --bg-app:      #0D0A08;
+  --bg-sidebar:  #100C09;
+  --bg-card:     rgba(13,10,8,0.5);
+  --bg-card-alt: rgba(30,21,16,0.5);
+  --bg-hover:    rgba(107,26,26,0.15);
+  --bg-input:    rgba(13,10,8,0.6);
+
+  --border:      #1E1510;
+  --border-soft: rgba(201,168,76,0.12);
+  --border-gold: rgba(201,168,76,0.2);
+
+  --text-primary: #E8DDD0;
+  --text-body:    #D5C8BA;
+  --text-muted:   #9B8A78;
+  --text-faint:   #6B5040;
+  --text-dark:    #3A2A1E;
+
+  --gold:        #C9A84C;
+  --gold-light:  #E0C878;
+  --crimson:     #6B1A1A;
+  --crimson-mid: #8B2020;
+
+  --prayer-bg:   rgba(107,26,26,0.12);
+  --quote-bg:    rgba(107,26,26,0.08);
+  --note-bg:     rgba(201,168,76,0.06);
+  --note-border: rgba(201,168,76,0.15);
+  --table-head:  rgba(107,26,26,0.3);
+  --table-row:   rgba(30,21,16,0.4);
+  --done-bg:     rgba(201,168,76,0.04);
+
+  --scrollbar-track: #161008;
+  --scrollbar-thumb: #6B1A1A;
 }
+
+/* ── Light theme ─────────────────────────────────────── */
+html.light {
+  color-scheme: light;
+
+  --bg-app:      #F5EDD8;
+  --bg-sidebar:  #EDE0C4;
+  --bg-card:     rgba(237,224,196,0.6);
+  --bg-card-alt: rgba(245,237,216,0.8);
+  --bg-hover:    rgba(107,26,26,0.08);
+  --bg-input:    rgba(255,252,245,0.9);
+
+  --border:      #D9C9A8;
+  --border-soft: rgba(107,26,26,0.12);
+  --border-gold: rgba(107,26,26,0.2);
+
+  --text-primary: #1E1510;
+  --text-body:    #2A1E15;
+  --text-muted:   #6B5040;
+  --text-faint:   #9B8A78;
+  --text-dark:    #C5B090;
+
+  --gold:        #8B5E1A;
+  --gold-light:  #6B3A10;
+  --crimson:     #6B1A1A;
+  --crimson-mid: #8B2020;
+
+  --prayer-bg:   rgba(107,26,26,0.06);
+  --quote-bg:    rgba(107,26,26,0.05);
+  --note-bg:     rgba(139,94,26,0.06);
+  --note-border: rgba(139,94,26,0.2);
+  --table-head:  rgba(107,26,26,0.12);
+  --table-row:   rgba(237,224,196,0.5);
+  --done-bg:     rgba(107,26,26,0.04);
+
+  --scrollbar-track: #EDE0C4;
+  --scrollbar-thumb: #8B5E1A;
+}
+
+* { box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.75;
+  transition: background-color 0.25s, color 0.25s;
 }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+::selection { background: var(--crimson); color: var(--text-primary); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }

@@ -1,65 +1,177 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import Link from 'next/link';
+import { useProgress } from '@/hooks/useProgress';
+import { AppShell } from '@/components/AppShell';
+import { ProgressBar } from '@/components/ProgressBar';
+import { chapters, PARTS, totalChapters } from '@/data/chapters';
+
+export default function HomePage() {
+  const { state, mounted, completedCount } = useProgress();
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center h-screen"
+        style={{ background: 'var(--bg-app)', color: 'var(--gold)' }}>
+        <div className="text-sm tracking-widest animate-pulse">Loading…</div>
+      </div>
+    );
+  }
+
+  const grouped = chapters.reduce<Record<number, typeof chapters>>((acc, ch) => {
+    if (!acc[ch.partNumber]) acc[ch.partNumber] = [];
+    acc[ch.partNumber].push(ch);
+    return acc;
+  }, {});
+
+  const pct = Math.round((completedCount / totalChapters) * 100);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <AppShell completed={state.completed} completedCount={completedCount}>
+      <div className="max-w-3xl mx-auto px-6 py-12">
+
+        {/* Hero */}
+        <div className="text-center mb-14">
+          <div className="text-xs tracking-widest uppercase mb-3"
+            style={{ color: 'var(--text-muted)' }}>
+            The Complete Devotional Series
+          </div>
+          <h1 className="text-4xl font-bold mb-2"
+            style={{ fontFamily: 'Georgia, serif', color: 'var(--gold)' }}>
+            The AMS Guide
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg mb-1" style={{ color: 'var(--text-muted)' }}>
+            Anchor · Movement · Surrender
+          </p>
+          <p className="text-sm max-w-md mx-auto mt-4"
+            style={{ color: 'var(--text-muted)', lineHeight: 1.7 }}>
+            A guided prayer routine inspired by Traditional Christian Devotion.
+          </p>
+
+          {/* Progress card */}
+          <div className="mt-10 rounded-xl p-6 text-left"
+            style={{
+              background: 'var(--prayer-bg)',
+              border: '1px solid var(--border-gold)',
+            }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Your Progress
+              </span>
+              <span className="text-2xl font-bold" style={{ color: 'var(--gold)' }}>
+                {pct}%
+              </span>
+            </div>
+            <ProgressBar completedCount={completedCount} />
+            <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
+              {completedCount} of {totalChapters} sections completed
+              {completedCount === 0 && ' — Start with Chapter 1 below'}
+              {completedCount === totalChapters && ' — Well done! You have completed the full guide.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Chapter list by part */}
+        {Object.entries(grouped).map(([partNumStr, chs]) => {
+          const partNum = parseInt(partNumStr);
+          const partLabel = partNum === 0
+            ? 'Introduction'
+            : PARTS.find((p) => p.number === partNum)?.title ?? '';
+
+          const partDone = chs.filter((ch) => state.completed[ch.id]).length;
+
+          return (
+            <section key={partNum} className="mb-10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="text-xs tracking-widest uppercase mb-1"
+                    style={{ color: 'var(--text-muted)' }}>
+                    {partNum === 0 ? 'Introduction' : `Part ${partNum}`}
+                  </div>
+                  <h2 className="text-base font-bold"
+                    style={{ color: 'var(--gold)', fontFamily: 'Georgia, serif' }}>
+                    {partLabel}
+                  </h2>
+                </div>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  {partDone}/{chs.length}
+                </span>
+              </div>
+
+              <div className="rounded-xl overflow-hidden"
+                style={{ border: '1px solid var(--border-soft)' }}>
+                {chs.map((ch, idx) => {
+                  const href = ch.id === 'intro' ? '/chapter/intro' : `/chapter/${ch.id}`;
+                  const done = !!state.completed[ch.id];
+                  const hasNote = !!(state.notes[ch.id]?.trim());
+
+                  return (
+                    <Link
+                      key={ch.id}
+                      href={href}
+                      className="flex items-center gap-4 px-5 py-4 group transition-all"
+                      style={{
+                        background: done ? 'var(--done-bg)' : 'var(--bg-card)',
+                        borderTop: idx > 0 ? '1px solid var(--border-soft)' : 'none',
+                      }}
+                    >
+                      <span
+                        className="w-5 h-5 rounded-full border flex items-center justify-center text-xs flex-shrink-0 transition-all"
+                        style={{
+                          borderColor: done ? 'var(--gold)' : 'var(--border)',
+                          background: done ? 'var(--gold)' : 'transparent',
+                          color: done ? 'var(--bg-app)' : 'transparent',
+                        }}
+                      >
+                        ✓
+                      </span>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          {ch.number > 0 && (
+                            <span className="text-xs" style={{ color: 'var(--crimson)' }}>
+                              {String(ch.number).padStart(2, '0')}
+                            </span>
+                          )}
+                          <span
+                            className="text-sm font-medium truncate"
+                            style={{ color: done ? 'var(--text-muted)' : 'var(--text-primary)' }}
+                          >
+                            {ch.title}
+                          </span>
+                          {hasNote && (
+                            <span className="text-xs" style={{ color: 'var(--gold)' }} title="Has notes">
+                              ✍
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--text-faint)' }}>
+                          {ch.subtitle}
+                        </div>
+                      </div>
+
+                      <span className="text-xs flex-shrink-0"
+                        style={{ color: 'var(--crimson)' }}>
+                        →
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+
+        {/* Footer */}
+        <div className="text-center mt-16 pb-8">
+          <div className="text-xs tracking-widest" style={{ color: 'var(--text-dark)' }}>
+            + * ~
+          </div>
+          <p className="text-xs mt-3" style={{ color: 'var(--text-faint)' }}>
+            AMS Guide · Traditional Christian Devotion · 60-Day Satisfaction Guarantee
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
